@@ -11,8 +11,6 @@ const port = new SerialPort({
 
 const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
 
-const usedOrderNumbers = new Set(); 
-
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
     console.log(`Wysyłam: ${command}`);
@@ -47,21 +45,14 @@ async function checkConnection() {
   }
 }
 
-function generateUniqueOrderNumber() {
-  let orderNumber;
-  do {
-    orderNumber = Math.floor(Math.random() * 900) + 100; 
-  } while (usedOrderNumbers.has(orderNumber));
-  usedOrderNumbers.add(orderNumber); 
-  console.log(`Otrzymałem liczbę: ${orderNumber}`);
-  return orderNumber;
-}
-
 async function sendOrderNumber(orderNumber, cornerNumber) {
   const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
   try {
     const response = await sendToDispenser(command);
-    if (response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) && response.includes("01")) {
+    if (
+      response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) &&
+      response.includes("01")
+    ) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
     } else {
       console.log("Błąd wysyłania numeru zamówienia.");
@@ -74,8 +65,7 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
 async function main() {
   await checkConnection();
 
-  const orderNumber = generateUniqueOrderNumber(); 
-  await sendOrderNumber(orderNumber, "125");
+  await sendOrderNumber("125", "125");
 }
 
 main();
