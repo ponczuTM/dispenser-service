@@ -32,43 +32,22 @@ function sendToDispenser(command) {
   });
 }
 
-async function checkConnection() {
-  try {
-    const response = await sendToDispenser("**CONN_ON*;");
-    if (response.includes("**CONN_ON*") && response.includes("01")) {
-      console.log("Połączenie z Dispenserem udane.");
-    } else {
-      console.log("Błąd połączenia z Dispenserem.");
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function sendOrderNumber(orderNumber, cornerNumber) {
-  const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
+async function orderTaken(pagerNumber) {
+  const command = `**ORDER_TAKEN:${pagerNumber}*;`;
   try {
     const response = await sendToDispenser(command);
-    if (
-      response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) &&
-      response.includes("01")
-    ) {
-      console.log("Numer zamówienia wysłany i zaakceptowany.");
+    if (response.includes(`**ORDER_TAKEN:${pagerNumber}*`)) {
+      console.log(`Pager ${pagerNumber} przestał wydawać dźwięk lub wibrować.`);
     } else {
-      console.log("Błąd wysyłania numeru zamówienia.");
+      console.log("Błąd podczas dezaktywacji pagera.");
     }
   } catch (error) {
     console.error(error);
   }
 }
 
-async function main() {
-  await checkConnection();
-
-  await sendOrderNumber("0125", "125");
-}
-
-main();
+const pagerNumber = "125";
+orderTaken(pagerNumber);
 
 port.on("error", function (err) {
   console.log("Błąd portu szeregowego: ", err.message);
