@@ -46,32 +46,27 @@ function App() {
     }));
   };
 
-  const generateRandomOrderNumber = () => {
-    return Math.floor(100 + Math.random() * 900); // Losowa liczba 3-cyfrowa
-  };
-
   const handleOrder = async () => {
-    const orderNumber = generateRandomOrderNumber();
+    const orderNumber = Math.floor(Math.random() * 900) + 100; // generuje liczbę od 100 do 999
+    alert(`Zamówienie złożone! Numer zamówienia: ${orderNumber}`);
 
-    const response = await fetch("http://localhost:3000/order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ orderNumber }),
-    });
+    try {
+      await fetch("http://localhost:3000/order", { 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderNumber }),
+      });
 
-    if (response.ok) {
-      alert("Zamówienie złożone! Numer zamówienia: " + orderNumber);
       setQuantities(
         products.reduce((acc, product) => {
           acc[product.id] = 0;
           return acc;
         }, {})
       );
-    } else {
-      const errorData = await response.json();
-      alert("Błąd: " + errorData.error);
+    } catch (error) {
+      console.error("Błąd podczas wysyłania zamówienia:", error);
     }
   };
 
@@ -89,6 +84,7 @@ function App() {
   return (
     <div className="App">
       <h1>Menu</h1>
+
       {isCartOpen && (
         <div className="cart-dialog">
           <h2>Podsumowanie Koszyka</h2>
