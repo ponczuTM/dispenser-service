@@ -62,7 +62,7 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
 async function main() {
   await checkConnection();
 
-  await sendOrderNumber("1001", "02");
+  await sendOrderNumber("1001", "99");
 }
 
 main();
