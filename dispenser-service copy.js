@@ -35,7 +35,7 @@ function sendToDispenser(command) {
 async function checkConnection() {
   try {
     const response = await sendToDispenser("**CONN_ON*;");
-    if (response.includes("**CONN_ON*") && response.includes("01")) {
+    if (response === "**CONN_ON*;01") {
       console.log("Połączenie z Dispenserem udane.");
     } else {
       console.log("Błąd połączenia z Dispenserem.");
@@ -49,10 +49,7 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
   const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
   try {
     const response = await sendToDispenser(command);
-    if (
-      response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) &&
-      response.includes("01")
-    ) {
+    if (response === `${command}01`) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
     } else {
       console.log("Błąd wysyłania numeru zamówienia.");
@@ -65,7 +62,7 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
 async function main() {
   await checkConnection();
 
-  await sendOrderNumber("1001", "05");
+  await sendOrderNumber("1001", "02");
 }
 
 main();
