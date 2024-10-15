@@ -46,35 +46,34 @@ function App() {
     }));
   };
 
+  const generateRandomOrderNumber = () => {
+    return Math.floor(100 + Math.random() * 900); // Losowa liczba 3-cyfrowa
+  };
+
   const handleOrder = async () => {
-    const randomOrderNumber = Math.floor(100 + Math.random() * 900);
-    try {
-      const response = await fetch('http://localhost:9000/order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orderNumber: randomOrderNumber }),
-      });
-  
-      if (response.ok) {
-        alert("Zamówienie złożone! Numer zamówienia: " + randomOrderNumber);
-        setQuantities(
-          products.reduce((acc, product) => {
-            acc[product.id] = 0;
-            return acc;
-          }, {})
-        );
-      } else {
-        const data = await response.json();
-        alert(data.message);
-      }
-    } catch (error) {
-      console.error("Błąd przy składaniu zamówienia:", error);
-      alert("Wystąpił błąd przy składaniu zamówienia.");
+    const orderNumber = generateRandomOrderNumber();
+
+    const response = await fetch("http://localhost:3000/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orderNumber }),
+    });
+
+    if (response.ok) {
+      alert("Zamówienie złożone! Numer zamówienia: " + orderNumber);
+      setQuantities(
+        products.reduce((acc, product) => {
+          acc[product.id] = 0;
+          return acc;
+        }, {})
+      );
+    } else {
+      const errorData = await response.json();
+      alert("Błąd: " + errorData.error);
     }
   };
-  
 
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
@@ -90,13 +89,6 @@ function App() {
   return (
     <div className="App">
       <h1>Menu</h1>
-
-      {}
-      {/* <div className="cart" onClick={toggleCart}>
-        KOSZYK ({totalItems})
-      </div> */}
-
-      {}
       {isCartOpen && (
         <div className="cart-dialog">
           <h2>Podsumowanie Koszyka</h2>
@@ -144,7 +136,6 @@ function App() {
         </tbody>
       </table>
 
-      {}
       {totalItems > 0 && (
         <button className="order-button" onClick={handleOrder}>
           ZAMÓW
