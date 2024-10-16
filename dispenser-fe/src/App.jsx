@@ -4,7 +4,6 @@ import "./App.css";
 const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
   { id: 2, category: "burgers", img: "hamburger.png", name: "Hamburger" },
-  // ... inne produkty
 ];
 
 function App() {
@@ -32,40 +31,40 @@ function App() {
   };
 
   const handleOrder = async () => {
-    const cartItems = products.filter((product) => quantities[product.id] > 0);
-    const totalItems = cartItems.reduce(
-      (acc, product) => acc + quantities[product.id],
-      0
-    );
+    // Generujemy losowy numer zamówienia (3 cyfry)
+    const orderNumber = Math.floor(100 + Math.random() * 900).toString();
 
-    if (totalItems > 0) {
-      const orderNumber = Math.floor(100 + Math.random() * 900); // Losowy 3-cyfrowy numer zamówienia
-      try {
-        const response = await fetch("http://localhost:5000/order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderNumber }),
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert(`Zamówienie przyjęte! Numer pagera: ${data.pagerNumber}`);
-          // Resetujemy ilości po udanym zamówieniu
-          setQuantities(
-            products.reduce((acc, product) => {
-              acc[product.id] = 0;
-              return acc;
-            }, {})
-          );
-        } else {
-          alert("Błąd podczas składania zamówienia.");
-        }
-      } catch (error) {
-        console.error("Błąd przy wysyłaniu zamówienia:", error);
-        alert("Błąd przy wysyłaniu zamówienia.");
+    // Przygotowanie danych do wysłania
+    const orderData = { orderNumber };
+
+    try {
+      // Wysłanie numeru zamówienia do backendu
+      const response = await fetch("http://localhost:3000/sendOrder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Zamówienie złożone! Numer pagera: ${result.pagerNumber}`);
+      } else {
+        alert("Błąd przy składaniu zamówienia.");
       }
-    } else {
-      alert("Koszyk jest pusty.");
+    } catch (error) {
+      console.error("Błąd połączenia z serwerem:", error);
+      alert("Błąd połączenia z serwerem.");
     }
+
+    // Zerowanie ilości produktów w koszyku
+    setQuantities(
+      products.reduce((acc, product) => {
+        acc[product.id] = 0;
+        return acc;
+      }, {})
+    );
   };
 
   const toggleCart = () => {
@@ -73,6 +72,7 @@ function App() {
   };
 
   const cartItems = products.filter((product) => quantities[product.id] > 0);
+
   const totalItems = cartItems.reduce(
     (acc, product) => acc + quantities[product.id],
     0
@@ -81,6 +81,30 @@ function App() {
   return (
     <div className="App">
       <h1>Menu</h1>
+
+      {/* Koszyk */}
+      <div className="cart" onClick={toggleCart}>
+        KOSZYK ({totalItems})
+      </div>
+
+      {isCartOpen && (
+        <div className="cart-dialog">
+          <h2>Podsumowanie Koszyka</h2>
+          {cartItems.length > 0 ? (
+            <ul>
+              {cartItems.map((product) => (
+                <li key={product.id}>
+                  {product.name} - {quantities[product.id]} szt.
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Koszyk jest pusty.</p>
+          )}
+          <button onClick={toggleCart}>Zamknij</button>
+        </div>
+      )}
+
       <table>
         <thead>
           <tr>
