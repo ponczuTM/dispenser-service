@@ -1,12 +1,5 @@
-const express = require("express");
-const bodyParser = require("body-parser");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
-
-const app = express();
-const PORT = 3000;
-
-app.use(bodyParser.json()); 
 
 const port = new SerialPort({
   path: "COM8",
@@ -17,7 +10,6 @@ const port = new SerialPort({
 });
 
 const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
-let existingOrderNumbers = [];
 
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
@@ -53,40 +45,27 @@ async function checkConnection() {
   }
 }
 
-function generateUniqueOrderNumber() {
-  let orderNumber;
-  do {
-    orderNumber = Math.floor(100 + Math.random() * 900); 
-  } while (existingOrderNumbers.includes(orderNumber)); 
-  existingOrderNumbers.push(orderNumber); 
-  return orderNumber;
-}
-
-app.post("/order", async (req, res) => {
-  const orderNumber = generateUniqueOrderNumber();
-  const cornerNumber = req.body.cornerNumber; 
+async function sendOrderNumber(orderNumber, cornerNumber) {
   const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
-
   try {
     const response = await sendToDispenser(command);
-    if (response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) && response.includes("01")) {
+    if (
+      response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) &&
+      response.includes("01")
+    ) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
-      res.status(200).json({ orderNumber });
     } else {
       console.log("Błąd wysyłania numeru zamówienia.");
-      res.status(500).json({ error: "Błąd wysyłania numeru zamówienia." });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
   }
-});
+}
 
 async function main() {
   await checkConnection();
-  app.listen(PORT, () => {
-    console.log(`Serwis nasłuchuje na porcie ${PORT}`);
-  });
+
+  await sendOrderNumber("125", "125");
 }
 
 main();
