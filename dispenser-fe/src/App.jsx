@@ -5,8 +5,6 @@ const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
   { id: 2, category: "burgers", img: "hamburger.png", name: "Hamburger" },
   { id: 3, category: "burgers", img: "cheeseburger.png", name: "Cheeseburger" },
-  { id: 4, category: "burgers", img: "chikker.png", name: "Chikker" },
-  { id: 5, category: "burgers", img: "jalapenoburger.png", name: "Jalapeno Burger" },
 ];
 
 function App() {
@@ -18,6 +16,8 @@ function App() {
   );
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
+  const [orderNumber, setOrderNumber] = useState(null);
 
   const increment = (id) => {
     setQuantities((prevQuantities) => ({
@@ -42,6 +42,13 @@ function App() {
         'Content-Type': 'application/json',
       },
     });
+
+    setTimeout(async () => {
+      const response = await fetch('http://localhost:8000/ordernumber');
+      const data = await response.json();
+      setOrderNumber(data.orderNumber); 
+      setIsOrderDialogOpen(true); 
+    }, 2000);
 
     setQuantities(
       products.reduce((acc, product) => {
@@ -81,6 +88,16 @@ function App() {
             <p>Koszyk jest pusty.</p>
           )}
           <button onClick={toggleCart}>Zamknij</button>
+        </div>
+      )}
+
+      {isOrderDialogOpen && (
+        <div className="order-dialog">
+          <div className="order-dialog-content">
+            <h2>NUMER ZAMÓWIENIA:</h2>
+            <p>{orderNumber}</p>
+            <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
+          </div>
         </div>
       )}
 
