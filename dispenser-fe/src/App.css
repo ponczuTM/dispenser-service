@@ -43,6 +43,7 @@ button {
   font-size: 50px;
   width: 80px;
   height: 80px;
+  border-radius: 12PX;
 }
 
 span {
@@ -68,9 +69,6 @@ span {
   z-index: 1000;
 }
 
-.order-button:hover {
-  background-color: #218838;
-}
 
 .cart {
   position: absolute;

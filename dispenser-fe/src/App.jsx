@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import { database, ref, set } from "../firebase";
 
 const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
@@ -35,11 +36,11 @@ function App() {
 
   const handleOrder = async () => {
     alert("Zamówienie złożone!");
-    
-    await fetch('http://localhost:8000/order', {
-      method: 'POST',
+
+    await fetch("http://localhost:8000/order", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -52,10 +53,22 @@ function App() {
 
     setIsOrderDialogOpen(true);
 
+    // Zbuduj obiekt zamówienia
+    const cartItems = products.filter((product) => quantities[product.id] > 0);
+    const orderDetails = cartItems.map((product) => ({
+      name: product.name,
+      quantity: quantities[product.id],
+    }));
+
     setTimeout(async () => {
-      const response = await fetch('http://localhost:8000/ordernumber');
+      const response = await fetch("http://localhost:8000/ordernumber");
       const data = await response.json();
       setOrderNumber(data.ordernumber);
+
+      const orderRef = ref(database, `kioskOrders/${data.ordernumber}`);
+      await set(orderRef, {
+        items: orderDetails,
+      });
     }, 2000);
   };
 
@@ -64,7 +77,6 @@ function App() {
   };
 
   const cartItems = products.filter((product) => quantities[product.id] > 0);
-
   const totalItems = cartItems.reduce(
     (acc, product) => acc + quantities[product.id],
     0
@@ -129,7 +141,10 @@ function App() {
 
       {isOrderDialogOpen && (
         <div className="order-dialog">
-          <div className="order-dialog-overlay" onClick={() => setIsOrderDialogOpen(false)} />
+          <div
+            className="order-dialog-overlay"
+            onClick={() => setIsOrderDialogOpen(false)}
+          />
           <div className="order-dialog-content">
             <h2>NUMER ZAMÓWIENIA:</h2>
             {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
