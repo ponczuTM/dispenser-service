@@ -150,7 +150,7 @@ function App() {
           <div className="order-dialog-content">
             <h2>NUMER ZAMÓWIENIA:</h2>
             {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
-            <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
+            <button onClick={() => setIsOrderDialogOpen(false)}>X</button>
           </div>
         </div>
       )}
