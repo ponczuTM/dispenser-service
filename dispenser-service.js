@@ -87,7 +87,24 @@ app.post("/order", async (req, res) => {
   const cornerNumber = orderNumber;
 
   await sendOrderNumber(orderNumber, cornerNumber);
-
+  if (
+    lastOrderNumber.toString()[0] === undefined ||
+    lastOrderNumber.toString()[0] === "undefined"
+  ) {
+    lastOrderNumber.toString()[0] = 0;
+  }
+  if (
+    lastOrderNumber.toString()[1] === undefined ||
+    lastOrderNumber.toString()[1] === "undefined"
+  ) {
+    lastOrderNumber.toString()[1] = 0;
+  }
+  if (
+    lastOrderNumber.toString()[2] === undefined ||
+    lastOrderNumber.toString()[2] === "undefined"
+  ) {
+    lastOrderNumber.toString()[2] = 0;
+  }
   const reorderedOrderNumber =
     lastOrderNumber.toString()[1] +
     lastOrderNumber.toString()[2] +

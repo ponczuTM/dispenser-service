@@ -101,6 +101,8 @@ function App() {
             <p>Koszyk jest pusty.</p>
           )}
           <button className="close-button" onClick={toggleCart}>Zamknij</button>
+          <button className="close-button" onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
+
         </div>
       )}
 
