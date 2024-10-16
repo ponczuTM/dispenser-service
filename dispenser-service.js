@@ -20,7 +20,7 @@ const port = new SerialPort({
 
 const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
 
-let lastOrderNumber = null;
+let lastOrderNumber = 0;
 
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
@@ -67,6 +67,10 @@ app.post("/ordernumber", (req, res) => {
   }
 });
 
+app.get("/ordernumber", (req, res) => {
+  res.status(200).json({ ordernumber: lastOrderNumber });
+});
+
 app.post("/order", async (req, res) => {
   const orderNumber = Math.floor(Math.random() * 1000);
   const cornerNumber = "125";
@@ -81,7 +85,7 @@ app.post("/order", async (req, res) => {
     ) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
 
-      await fetch(`http://localhost:8000/ordernumber`, {
+      await fetch(`http:localhost:8000/ordernumber`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
