@@ -100,7 +100,7 @@ function App() {
           ) : (
             <p>Koszyk jest pusty.</p>
           )}
-          <button onClick={toggleCart} className="close-button">Zamknij</button>
+          <button className="close-button" onClick={toggleCart}>Zamknij</button>
         </div>
       )}
 
