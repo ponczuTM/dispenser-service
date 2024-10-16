@@ -79,9 +79,7 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
 }
 
 app.post("/order", async (req, res) => {
-  const orderNumber = Math.floor(Math.random() * 1000)
-    .toString()
-    .padStart(3, "0");
+  const orderNumber = Math.floor(Math.random() * 1000).toString();
   const cornerNumber = orderNumber;
 
   await sendOrderNumber(orderNumber, cornerNumber);
