@@ -41,6 +41,7 @@ function sendToDispenser(command) {
 
 app.post("/sendOrder", async (req, res) => {
   const { orderNumber } = req.body;
+  console.log(orderNumber);
 
   const command = `**SET_NO:${orderNumber}*;`;
 
