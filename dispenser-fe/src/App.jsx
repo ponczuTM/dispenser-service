@@ -5,57 +5,6 @@ const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
   { id: 2, category: "burgers", img: "hamburger.png", name: "Hamburger" },
   { id: 3, category: "burgers", img: "cheeseburger.png", name: "Cheeseburger" },
-  { id: 4, category: "burgers", img: "chikker.png", name: "Chikker" },
-  {
-    id: 5,
-    category: "burgers",
-    img: "jalapenoburger.png",
-    name: "Jalapeno Burger",
-  },
-  { id: 6, category: "burgers", img: "mcchiken.png", name: "McChiken" },
-  {
-    id: 7,
-    category: "burgers",
-    img: "mccrispy-supreme.png",
-    name: "McCrispy Supreme",
-  },
-  { id: 8, category: "burgers", img: "mccrispy.png", name: "McCrispy" },
-  { id: 9, category: "burgers", img: "mcdouble.png", name: "McDouble" },
-  {
-    id: 10,
-    category: "burgers",
-    img: "mcroyal-double.png",
-    name: "McRoyal Double",
-  },
-  { id: 11, category: "burgers", img: "mcroyal.png", name: "McRoyal" },
-  { id: 12, category: "burgers", img: "red-chikker.png", name: "Red Chikker" },
-  {
-    id: 13,
-    category: "burgers",
-    img: "veggie-burger.png",
-    name: "Veggie Burger",
-  },
-  {
-    id: 14,
-    category: "burgers",
-    img: "wiesmac-double.png",
-    name: "Wieśmac Double",
-  },
-  { id: 15, category: "burgers", img: "wiesmac.png", name: "Wieśmacx" },
-
-  {
-    id: 16,
-    category: "mccafe",
-    img: "caramel-latte-macchiato.png",
-    name: (
-      <>
-        caramel latte
-        <br />
-        macchiato
-      </>
-    ),
-  },
-  { id: 17, category: "mccafe", img: "espresso.png", name: "espresso" },
 ];
 
 function App() {
@@ -87,18 +36,18 @@ function App() {
   const handleOrder = async () => {
     alert("Zamówienie złożone!");
 
-    await fetch("http://localhost:8000/order", {
-      method: "POST",
+    await fetch('http://localhost:8000/order', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     setTimeout(async () => {
-      const response = await fetch("http://localhost:8000/ordernumber");
+      const response = await fetch('http://localhost:8000/ordernumber');
       const data = await response.json();
-      setOrderNumber(data.orderNumber);
-      setIsOrderDialogOpen(true);
+      setOrderNumber(data.orderNumber); 
+      setIsOrderDialogOpen(true); 
     }, 2000);
 
     setQuantities(
