@@ -31,11 +31,9 @@ function App() {
   };
 
   const handleOrder = async () => {
-    // Generujemy losowy numer zamówienia (3 cyfry)
     const orderNumber = Math.floor(100 + Math.random() * 900).toString();
-
-    // Przygotowanie danych do wysłania
     const orderData = { orderNumber };
+    console.log("\n\n\nORDER NUMBER: ", orderNumber, "\n\n\n");
 
     try {
       // Wysłanie numeru zamówienia do backendu
