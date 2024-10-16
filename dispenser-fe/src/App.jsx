@@ -19,7 +19,6 @@ function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [orderNumber, setOrderNumber] = useState(null);
-  const [isOrderNumberVisible, setIsOrderNumberVisible] = useState(false);
 
   const increment = (id) => {
     setQuantities((prevQuantities) => ({
@@ -36,10 +35,19 @@ function App() {
   };
 
   const handleOrder = async () => {
+    setOrderNumber("Ładowanie...");
+
+    const cartItems = products.filter((product) => quantities[product.id] > 0);
+    const orderDetails = cartItems.map((product) => ({
+      name: product.name,
+      quantity: quantities[product.id],
+    }));
+
     await fetch("http://localhost:8000/order", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        body: JSON.stringify(orderDetails),
       },
     });
 
@@ -52,12 +60,6 @@ function App() {
 
     setIsOrderDialogOpen(true);
 
-    const cartItems = products.filter((product) => quantities[product.id] > 0);
-    const orderDetails = cartItems.map((product) => ({
-      name: product.name,
-      quantity: quantities[product.id],
-    }));
-
     setTimeout(async () => {
       const response = await fetch("http://localhost:8000/ordernumber");
       const data = await response.json();
@@ -67,10 +69,6 @@ function App() {
       await set(orderRef, {
         items: orderDetails,
       });
-
-      setTimeout(() => {
-        setIsOrderNumberVisible(true);
-      }, 2600);
     }, 2500);
   };
 
@@ -149,11 +147,7 @@ function App() {
           />
           <div className="order-dialog-content">
             <h2>NUMER ZAMÓWIENIA:</h2>
-            {isOrderNumberVisible ? (
-              <h3>{orderNumber}</h3>
-            ) : (
-              <h3>Ładowanie...</h3>
-            )}
+            {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
             <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
           </div>
         </div>
