@@ -35,21 +35,13 @@ function App() {
 
   const handleOrder = async () => {
     alert("Zamówienie złożone!");
-
-    await fetch("http://localhost:8000/order", {
-      method: "POST",
+    
+    await fetch('http://localhost:8000/order', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
-
-    setIsOrderDialogOpen(true);
-
-    setTimeout(async () => {
-      const response = await fetch("http://localhost:8000/ordernumber");
-      const data = await response.json();
-      setOrderNumber(data.orderNumber);
-    }, 2000);
 
     setQuantities(
       products.reduce((acc, product) => {
@@ -57,6 +49,14 @@ function App() {
         return acc;
       }, {})
     );
+
+    setIsOrderDialogOpen(true);
+
+    setTimeout(async () => {
+      const response = await fetch('http://localhost:8000/ordernumber');
+      const data = await response.json();
+      setOrderNumber(data.ordernumber);
+    }, 2000);
   };
 
   const toggleCart = () => {
@@ -89,16 +89,6 @@ function App() {
             <p>Koszyk jest pusty.</p>
           )}
           <button onClick={toggleCart}>Zamknij</button>
-        </div>
-      )}
-
-      {isOrderDialogOpen && (
-        <div className="order-dialog">
-          <div className="order-dialog-content">
-            <h2>NUMER ZAMÓWIENIA:</h2>
-            <p>{orderNumber ? orderNumber : "Czekaj na numer zamówienia..."}</p>
-            <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
-          </div>
         </div>
       )}
 
@@ -135,6 +125,17 @@ function App() {
         <button className="order-button" onClick={handleOrder}>
           ZAMÓW
         </button>
+      )}
+
+      {isOrderDialogOpen && (
+        <div className="order-dialog">
+          <div className="order-dialog-overlay" onClick={() => setIsOrderDialogOpen(false)} />
+          <div className="order-dialog-content">
+            <h2>NUMER ZAMÓWIENIA:</h2>
+            {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
+            <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
+          </div>
+        </div>
       )}
     </div>
   );
