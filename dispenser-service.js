@@ -57,7 +57,11 @@ async function checkConnection() {
 }
 
 app.get("/ordernumber", (req, res) => {
-  res.status(200).json({ ordernumber: lastOrderNumber });
+  const orderNumberStr = lastOrderNumber.toString();
+  const reorderedOrderNumber =
+    orderNumberStr[1] + orderNumberStr[2] + orderNumberStr[0];
+
+  res.status(200).json({ ordernumber: reorderedOrderNumber });
 });
 
 async function sendOrderNumber(orderNumber, cornerNumber) {
@@ -84,7 +88,12 @@ app.post("/order", async (req, res) => {
 
   await sendOrderNumber(orderNumber, cornerNumber);
 
-  res.status(200).json({ orderNumber: lastOrderNumber });
+  const reorderedOrderNumber =
+    lastOrderNumber.toString()[1] +
+    lastOrderNumber.toString()[2] +
+    lastOrderNumber.toString()[0];
+
+  res.status(200).json({ orderNumber: reorderedOrderNumber });
 });
 
 app.listen(PORT, () => {
