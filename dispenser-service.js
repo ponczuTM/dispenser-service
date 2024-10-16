@@ -1,14 +1,13 @@
 const express = require("express");
+const cors = require("cors");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
-const cors = require("cors");
 
 const app = express();
-const port = 3000;
-app.use(express.json());
-app.use(cors());
+app.use(cors()); 
+app.use(express.json()); 
 
-const serialPort = new SerialPort({
+const port = new SerialPort({
   path: "COM8",
   baudRate: 9600,
   dataBits: 8,
@@ -16,23 +15,14 @@ const serialPort = new SerialPort({
   parity: "none",
 });
 
-const parser = serialPort.pipe(new ReadlineParser({ delimiter: ";" }));
+const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
 
-let pagerNumbers = [];
-
-function generateUniquePagerNumber() {
-  let pagerNumber;
-  do {
-    pagerNumber = Math.floor(100 + Math.random() * 900).toString();
-  } while (pagerNumbers.includes(pagerNumber));
-  pagerNumbers.push(pagerNumber);
-  return pagerNumber;
-}
+let usedOrderNumbers = new Set(); 
 
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
     console.log(`Wysyłam: ${command}`);
-    serialPort.write(command, (err) => {
+    port.write(command, (err) => {
       if (err) {
         return reject(`Błąd wysyłania: ${err.message}`);
       }
@@ -50,36 +40,55 @@ function sendToDispenser(command) {
   });
 }
 
-app.post("/sendOrder", async (req, res) => {
-  const { orderNumber } = req.body;
-  const pagerNumber = generateUniquePagerNumber();
-
-  const command = `**SET_NO:${orderNumber}${pagerNumber}*;`;
-
+async function checkConnection() {
   try {
-    const response = await sendToDispenser(command);
-    if (
-      response.includes(`**SET_NO:${orderNumber}${pagerNumber}*`) &&
-      response.includes("01")
-    ) {
-      console.log("Numer zamówienia wysłany i zaakceptowany.");
-      res
-        .status(200)
-        .json({ message: "Numer zamówienia wysłany", pagerNumber });
+    const response = await sendToDispenser("**CONN_ON*;");
+    if (response.includes("**CONN_ON*") && response.includes("01")) {
+      console.log("Połączenie z Dispenserem udane.");
     } else {
-      console.log("Błąd wysyłania numeru zamówienia.");
-      res.status(500).json({ message: "Błąd wysyłania numeru zamówienia" });
+      console.log("Błąd połączenia z Dispenserem.");
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Błąd podczas komunikacji z Dispenserem" });
   }
+}
+
+async function sendOrderNumber(orderNumber) {
+  const command = `**SET_NO:${orderNumber}*;`;
+  try {
+    const response = await sendToDispenser(command);
+    if (response.includes(`**SET_NO:${orderNumber}*`) && response.includes("01")) {
+      console.log("Numer zamówienia wysłany i zaakceptowany.");
+    } else {
+      console.log("Błąd wysyłania numeru zamówienia.");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+app.post("/order", async (req, res) => {
+  const { orderNumber } = req.body;
+
+  if (usedOrderNumbers.has(orderNumber)) {
+    return res.status(400).send({ error: "Numer zamówienia już użyty." });
+  }
+
+  usedOrderNumbers.add(orderNumber);
+  await sendOrderNumber(orderNumber);
+  res.send({ message: "Numer zamówienia przekazany." });
 });
 
-app.listen(port, () => {
-  console.log(`Serwer nasłuchuje na porcie ${port}`);
-});
+async function main() {
+  await checkConnection();
+}
 
-serialPort.on("error", (err) => {
+main();
+
+port.on("error", function (err) {
   console.log("Błąd portu szeregowego: ", err.message);
+});
+
+app.listen(3000, () => {
+  console.log("Serwer działa na porcie 3000");
 });

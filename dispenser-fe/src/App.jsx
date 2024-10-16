@@ -30,39 +30,43 @@ function App() {
     }));
   };
 
+  const generateUniqueOrderNumber = () => {
+    let orderNumber;
+    do {
+      orderNumber = Math.floor(100 + Math.random() * 900); // Losowy 3-cyfrowy numer
+    } while (quantities[orderNumber] !== undefined); // Sprawdź, czy numer jest unikalny
+    return orderNumber;
+  };
+
   const handleOrder = async () => {
-    const orderNumber = Math.floor(100 + Math.random() * 900).toString();
-    const orderData = { orderNumber };
-    console.log("\n\n\nORDER NUMBER: ", orderNumber, "\n\n\n");
+    const orderNumber = generateUniqueOrderNumber();
 
     try {
-      // Wysłanie numeru zamówienia do backendu
-      const response = await fetch("http://localhost:3000/sendOrder", {
+      const response = await fetch("http://localhost:3000/order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({ orderNumber }),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        alert(`Zamówienie złożone! Numer pagera: ${result.orderNumber}`);
-      } else {
-        alert("Błąd przy składaniu zamówienia.");
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error);
+        return;
       }
-    } catch (error) {
-      console.error("Błąd połączenia z serwerem:", error);
-      alert("Błąd połączenia z serwerem.");
-    }
 
-    // Zerowanie ilości produktów w koszyku
-    setQuantities(
-      products.reduce((acc, product) => {
-        acc[product.id] = 0;
-        return acc;
-      }, {})
-    );
+      alert("Zamówienie złożone! Numer zamówienia: " + orderNumber);
+
+      setQuantities(
+        products.reduce((acc, product) => {
+          acc[product.id] = 0;
+          return acc;
+        }, {})
+      );
+    } catch (error) {
+      console.error("Błąd przy wysyłaniu zamówienia:", error);
+    }
   };
 
   const toggleCart = () => {
@@ -79,11 +83,6 @@ function App() {
   return (
     <div className="App">
       <h1>Menu</h1>
-
-      {/* Koszyk */}
-      <div className="cart" onClick={toggleCart}>
-        KOSZYK ({totalItems})
-      </div>
 
       {isCartOpen && (
         <div className="cart-dialog">
