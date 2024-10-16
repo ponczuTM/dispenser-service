@@ -35,6 +35,7 @@ function App() {
   };
 
   const handleOrder = async () => {
+    orderNumber = null;
     alert("Zamówienie złożone!");
 
     await fetch("http://localhost:8000/order", {
