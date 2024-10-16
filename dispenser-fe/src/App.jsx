@@ -100,9 +100,7 @@ function App() {
           ) : (
             <p>Koszyk jest pusty.</p>
           )}
-          <button onClick={toggleCart} style={{ width: "400px" }}>
-            Zamknij
-          </button>
+          <button onClick={toggleCart}>Zamknij</button>
         </div>
       )}
 

@@ -41,9 +41,9 @@ button {
   padding: 5px 10px;
   cursor: pointer;
   font-size: 50px;
-  width: 80px;
+  width: auto;
   height: 80px;
-  border-radius: 12PX;
+  border-radius: 12px;
 }
 
 span {
@@ -68,7 +68,6 @@ span {
   border: 5px solid #218838;
   z-index: 1000;
 }
-
 
 .cart {
   position: absolute;
