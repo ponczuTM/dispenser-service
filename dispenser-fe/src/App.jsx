@@ -49,7 +49,7 @@ function App() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Zamówienie złożone! Numer pagera: ${result.pagerNumber}`);
+        alert(`Zamówienie złożone! Numer pagera: ${result.orderNumber}`);
       } else {
         alert("Błąd przy składaniu zamówienia.");
       }
