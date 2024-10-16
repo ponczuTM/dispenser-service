@@ -36,18 +36,19 @@ function App() {
   const handleOrder = async () => {
     alert("Zamówienie złożone!");
 
-    await fetch('http://localhost:8000/order', {
-      method: 'POST',
+    await fetch("http://localhost:8000/order", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
+    setIsOrderDialogOpen(true);
+
     setTimeout(async () => {
-      const response = await fetch('http://localhost:8000/ordernumber');
+      const response = await fetch("http://localhost:8000/ordernumber");
       const data = await response.json();
-      setOrderNumber(data.orderNumber); 
-      setIsOrderDialogOpen(true); 
+      setOrderNumber(data.orderNumber);
     }, 2000);
 
     setQuantities(
@@ -95,7 +96,7 @@ function App() {
         <div className="order-dialog">
           <div className="order-dialog-content">
             <h2>NUMER ZAMÓWIENIA:</h2>
-            <p>{orderNumber}</p>
+            <p>{orderNumber ? orderNumber : "Czekaj na numer zamówienia..."}</p>
             <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
           </div>
         </div>
