@@ -19,6 +19,7 @@ function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [orderNumber, setOrderNumber] = useState(null);
+  const [isOrderNumberVisible, setIsOrderNumberVisible] = useState(false);
 
   const increment = (id) => {
     setQuantities((prevQuantities) => ({
@@ -35,9 +36,6 @@ function App() {
   };
 
   const handleOrder = async () => {
-    orderNumber = null;
-    alert("Zamówienie złożone!");
-
     await fetch("http://localhost:8000/order", {
       method: "POST",
       headers: {
@@ -54,7 +52,6 @@ function App() {
 
     setIsOrderDialogOpen(true);
 
-    // Zbuduj obiekt zamówienia
     const cartItems = products.filter((product) => quantities[product.id] > 0);
     const orderDetails = cartItems.map((product) => ({
       name: product.name,
@@ -70,7 +67,11 @@ function App() {
       await set(orderRef, {
         items: orderDetails,
       });
-    }, 2000);
+
+      setTimeout(() => {
+        setIsOrderNumberVisible(true);
+      }, 2600);
+    }, 2500);
   };
 
   const toggleCart = () => {
@@ -148,7 +149,11 @@ function App() {
           />
           <div className="order-dialog-content">
             <h2>NUMER ZAMÓWIENIA:</h2>
-            {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
+            {isOrderNumberVisible ? (
+              <h3>{orderNumber}</h3>
+            ) : (
+              <h3>Ładowanie...</h3>
+            )}
             <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
           </div>
         </div>
