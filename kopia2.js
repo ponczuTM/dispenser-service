@@ -1,5 +1,14 @@
+const express = require('express');
+const cors = require('cors');
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
+
+const app = express();
+const PORT = 8000; 
+
+app.use(cors());
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
 const port = new SerialPort({
   path: "COM8",
@@ -10,6 +19,8 @@ const port = new SerialPort({
 });
 
 const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
+
+let lastOrderNumber = 0; 
 
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
@@ -45,30 +56,36 @@ async function checkConnection() {
   }
 }
 
-async function sendOrderNumber(orderNumber, cornerNumber) {
-  const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
+app.get('/ordernumber', (req, res) => {
+  res.status(200).json({ ordernumber: lastOrderNumber });
+});
+
+app.post('/order', async (req, res) => {
+  const orderNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); 
+  const cornerNumber = '125'; 
+
+  const command = `**SET_NO:${orderNumber}${cornerNumber}*`; 
+
   try {
     const response = await sendToDispenser(command);
-    if (
-      response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) &&
-      response.includes("01")
-    ) {
+    if (response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) && response.includes("01")) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
+
+      lastOrderNumber = orderNumber; 
+      res.status(200).json({ orderNumber });
     } else {
-      console.log("Błąd wysyłania numeru zamówienia.");
+      res.status(400).json({ message: "Błąd wysyłania numeru zamówienia." });
     }
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: error.message });
   }
-}
+});
 
-async function main() {
-  await checkConnection();
-
-  await sendOrderNumber("0125", "125");
-}
-
-main();
+app.listen(PORT, () => {
+  console.log(`Serwer nasłuchuje na porcie ${PORT}`);
+  checkConnection(); 
+});
 
 port.on("error", function (err) {
   console.log("Błąd portu szeregowego: ", err.message);
