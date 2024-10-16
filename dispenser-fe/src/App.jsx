@@ -4,6 +4,9 @@ import "./App.css";
 const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
   { id: 2, category: "burgers", img: "hamburger.png", name: "Hamburger" },
+  { id: 3, category: "burgers", img: "cheeseburger.png", name: "Cheeseburger" },
+  { id: 4, category: "burgers", img: "chikker.png", name: "Chikker" },
+  { id: 5, category: "burgers", img: "jalapenoburger.png", name: "Jalapeno Burger" },
 ];
 
 function App() {
@@ -30,43 +33,22 @@ function App() {
     }));
   };
 
-  const generateUniqueOrderNumber = () => {
-    let orderNumber;
-    do {
-      orderNumber = Math.floor(100 + Math.random() * 900); // Losowy 3-cyfrowy numer
-    } while (quantities[orderNumber] !== undefined); // Sprawdź, czy numer jest unikalny
-    return orderNumber;
-  };
-
   const handleOrder = async () => {
-    const orderNumber = generateUniqueOrderNumber();
+    alert("Zamówienie złożone!");
 
-    try {
-      const response = await fetch("http://localhost:3000/order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderNumber }),
-      });
+    await fetch('http://localhost:8000/order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        alert(error.error);
-        return;
-      }
-
-      alert("Zamówienie złożone! Numer zamówienia: " + orderNumber);
-
-      setQuantities(
-        products.reduce((acc, product) => {
-          acc[product.id] = 0;
-          return acc;
-        }, {})
-      );
-    } catch (error) {
-      console.error("Błąd przy wysyłaniu zamówienia:", error);
-    }
+    setQuantities(
+      products.reduce((acc, product) => {
+        acc[product.id] = 0;
+        return acc;
+      }, {})
+    );
   };
 
   const toggleCart = () => {

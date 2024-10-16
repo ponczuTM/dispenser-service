@@ -1,11 +1,14 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
 
 const app = express();
-app.use(cors()); 
+const PORT = 8000; 
+
+app.use(cors());
 app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
 const port = new SerialPort({
   path: "COM8",
@@ -16,8 +19,6 @@ const port = new SerialPort({
 });
 
 const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
-
-let usedOrderNumbers = new Set(); 
 
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
@@ -53,42 +54,40 @@ async function checkConnection() {
   }
 }
 
-async function sendOrderNumber(orderNumber) {
-  const command = `**SET_NO:${orderNumber}*;`;
+app.post('/order', async (req, res) => {
+  const orderNumber = Math.floor(Math.random() * 1000); 
+  const cornerNumber = '125'; 
+
+  const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
+
   try {
     const response = await sendToDispenser(command);
-    if (response.includes(`**SET_NO:${orderNumber}*`) && response.includes("01")) {
+    if (response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) && response.includes("01")) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
+
+      await fetch(`http://localhost:8000/ordernumber`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ordernumber: orderNumber }),
+      });
+
+      res.status(200).json({ orderNumber });
     } else {
-      console.log("Błąd wysyłania numeru zamówienia.");
+      res.status(400).json({ message: "Błąd wysyłania numeru zamówienia." });
     }
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: error.message });
   }
-}
-
-app.post("/order", async (req, res) => {
-  const { orderNumber } = req.body;
-
-  if (usedOrderNumbers.has(orderNumber)) {
-    return res.status(400).send({ error: "Numer zamówienia już użyty." });
-  }
-
-  usedOrderNumbers.add(orderNumber);
-  await sendOrderNumber(orderNumber);
-  res.send({ message: "Numer zamówienia przekazany." });
 });
 
-async function main() {
-  await checkConnection();
-}
-
-main();
+app.listen(PORT, () => {
+  console.log(`Serwer nasłuchuje na porcie ${PORT}`);
+  checkConnection(); 
+});
 
 port.on("error", function (err) {
   console.log("Błąd portu szeregowego: ", err.message);
-});
-
-app.listen(3000, () => {
-  console.log("Serwer działa na porcie 3000");
 });
