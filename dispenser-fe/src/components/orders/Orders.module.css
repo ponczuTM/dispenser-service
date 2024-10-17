@@ -1,0 +1,133 @@
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 44px;
+  font-weight: bold;
+}
+
+.orderContainer {
+  margin-bottom: 50px;
+}
+
+.tableContainer {
+  max-width: 100%;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  height: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.table th {
+  background-color: #f4f4f4;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.image {
+  width: 200px;
+  height: auto;
+}
+
+.completeButton {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 26px;
+  cursor: pointer;
+  border-radius: 5px;
+  width: auto;
+  margin-bottom: 200px;
+}
+
+.actionsContainer {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.dialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 800px;
+  height: 450px;
+}
+
+.dialog h3 {
+  margin-bottom: 20px;
+  font-size: 50px;
+}
+
+.dialog button {
+  margin: 0 10px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.no {
+  background-color: red;
+  color: white;
+  width: 250px;
+  height: 130px;
+  font-size: 50px;
+}
+
+.yes {
+  background-color: green;
+  color: white;
+  width: 250px;
+  height: 130px;
+  font-size: 50px;
+}
+
+h2 {
+  font-size: 40px;
+}
+.selectedRow {
+  background-color: #d4f7d4;
+}
+
+.itemInfo {
+  font-size: 100px;
+}
