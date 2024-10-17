@@ -152,14 +152,3 @@ span {
   width: 500px;
   text-align: center;
 }
-
-
-.close-button {
-  background-color: #dc3545; 
-  color: white; 
-  padding: 10px; 
-  border: none; 
-  cursor: pointer; 
-  border-radius: 5px; 
-  font-size: 16px; 
-}

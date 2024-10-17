@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
 import { database, ref, set } from "../firebase";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Orders from "./components/orders/Orders";
 
 const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
@@ -83,53 +81,78 @@ function App() {
     (acc, product) => acc + quantities[product.id],
     0
   );
+
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={
-            <>
-              <h1>Menu</h1>
-              {/* Dodaj tu kod menu, jeśli jest to potrzebne */}
-              <table>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th></th>
-                    <th>Ilość</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id}>
-                      <td>
-                        <img
-                          src={`/src/assets/${product.category}/${product.img}`}
-                          alt={product.name}
-                          className="product-image"
-                        />
-                      </td>
-                      <td>{product.name}</td>
-                      <td>
-                        <button onClick={() => decrement(product.id)}>-</button>
-                        <span>{quantities[product.id]}</span>
-                        <button onClick={() => increment(product.id)}>+</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {totalItems > 0 && (
-                <button className="order-button" onClick={handleOrder}>
-                  ZAMÓW
-                </button>
-              )}
-            </>
-          } />
-          <Route path="/orders" element={<Orders />} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="App">
+      <h1>Menu</h1>
+
+      {isCartOpen && (
+        <div className="cart-dialog">
+          <h2>Podsumowanie Koszyka</h2>
+          {cartItems.length > 0 ? (
+            <ul>
+              {cartItems.map((product) => (
+                <li key={product.id}>
+                  {product.name} - {quantities[product.id]} szt.
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Koszyk jest pusty.</p>
+          )}
+          <button onClick={toggleCart}>X</button>
+        </div>
+      )}
+
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Ilość</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product.id}>
+              <td>
+                <img
+                  src={`/src/assets/${product.category}/${product.img}`}
+                  alt={product.name}
+                  className="product-image"
+                />
+              </td>
+              <td>{product.name}</td>
+              <td>
+                <button onClick={() => decrement(product.id)}>-</button>
+                <span>{quantities[product.id]}</span>
+                <button onClick={() => increment(product.id)}>+</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {totalItems > 0 && (
+        <button className="order-button" onClick={handleOrder}>
+          ZAMÓW
+        </button>
+      )}
+
+      {isOrderDialogOpen && (
+        <div className="order-dialog">
+          <div
+            className="order-dialog-overlay"
+            onClick={() => setIsOrderDialogOpen(false)}
+          />
+          <div className="order-dialog-content">
+            <h2>NUMER ZAMÓWIENIA:</h2>
+            {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
+            <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
