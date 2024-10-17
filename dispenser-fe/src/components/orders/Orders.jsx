@@ -55,7 +55,6 @@ const Orders = () => {
     if (product) {
       return `/src/assets/${product.category}/${product.img}`;
     }
-    return "/src/assets/default.png";
   };
 
   return (
@@ -86,7 +85,6 @@ const Orders = () => {
                     </td>
                     <td className={styles.itemInfo}>{item.name}</td>
                     <td className={styles.itemInfo}>{item.quantity}</td>
-
                   </tr>
                 ))}
               </tbody>

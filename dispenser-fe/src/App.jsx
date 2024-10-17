@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import "./App.css";
 import { database, ref, set } from "../firebase";
+import Orders from './components/orders/Orders';
 
 const products = [
   { id: 1, category: "burgers", img: "bigmac.png", name: "BigMac" },
@@ -47,8 +49,8 @@ function App() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        body: JSON.stringify(orderDetails),
       },
+      body: JSON.stringify(orderDetails),
     });
 
     setQuantities(
@@ -83,76 +85,87 @@ function App() {
   );
 
   return (
-    <div className="App">
-      <h1>Menu</h1>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <h1>Menu</h1>
+                {isCartOpen && (
+                  <div className="cart-dialog">
+                    <h2>Podsumowanie Koszyka</h2>
+                    {cartItems.length > 0 ? (
+                      <ul>
+                        {cartItems.map((product) => (
+                          <li key={product.id}>
+                            {product.name} - {quantities[product.id]} szt.
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>Koszyk jest pusty.</p>
+                    )}
+                    <button onClick={toggleCart}>X</button>
+                  </div>
+                )}
 
-      {isCartOpen && (
-        <div className="cart-dialog">
-          <h2>Podsumowanie Koszyka</h2>
-          {cartItems.length > 0 ? (
-            <ul>
-              {cartItems.map((product) => (
-                <li key={product.id}>
-                  {product.name} - {quantities[product.id]} szt.
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Koszyk jest pusty.</p>
-          )}
-          <button onClick={toggleCart}>X</button>
-        </div>
-      )}
+                <table>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Produkt</th>
+                      <th>Ilość</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id}>
+                        <td>
+                          <img
+                            src={`/src/assets/${product.category}/${product.img}`}
+                            alt={product.name}
+                            className="product-image"
+                          />
+                        </td>
+                        <td>{product.name}</td>
+                        <td>
+                          <button onClick={() => decrement(product.id)}>-</button>
+                          <span>{quantities[product.id]}</span>
+                          <button onClick={() => increment(product.id)}>+</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th></th>
-            <th>Ilość</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>
-                <img
-                  src={`/src/assets/${product.category}/${product.img}`}
-                  alt={product.name}
-                  className="product-image"
-                />
-              </td>
-              <td>{product.name}</td>
-              <td>
-                <button onClick={() => decrement(product.id)}>-</button>
-                <span>{quantities[product.id]}</span>
-                <button onClick={() => increment(product.id)}>+</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                {totalItems > 0 && (
+                  <button className="order-button" onClick={handleOrder}>
+                    ZAMÓW
+                  </button>
+                )}
 
-      {totalItems > 0 && (
-        <button className="order-button" onClick={handleOrder}>
-          ZAMÓW
-        </button>
-      )}
-
-      {isOrderDialogOpen && (
-        <div className="order-dialog">
-          <div
-            className="order-dialog-overlay"
-            onClick={() => setIsOrderDialogOpen(false)}
+                {isOrderDialogOpen && (
+                  <div className="order-dialog">
+                    <div
+                      className="order-dialog-overlay"
+                      onClick={() => setIsOrderDialogOpen(false)}
+                    />
+                    <div className="order-dialog-content">
+                      <h2>NUMER ZAMÓWIENIA:</h2>
+                      {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
+                      <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
+                    </div>
+                  </div>
+                )}
+              </>
+            }
           />
-          <div className="order-dialog-content">
-            <h2>NUMER ZAMÓWIENIA:</h2>
-            {orderNumber ? <h3>{orderNumber}</h3> : <h3>Ładowanie...</h3>}
-            <button onClick={() => setIsOrderDialogOpen(false)}>Zamknij</button>
-          </div>
-        </div>
-      )}
-    </div>
+          <Route path="/orders" element={<Orders />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
