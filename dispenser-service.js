@@ -56,13 +56,29 @@ async function checkConnection() {
   }
 }
 
-app.get("/ordernumber", (req, res) => {
-  const orderNumberStr = lastOrderNumber.toString();
-  const reorderedOrderNumber =
-    orderNumberStr[1] + orderNumberStr[2] + orderNumberStr[0];
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  res.status(200).json({ ordernumber: reorderedOrderNumber });
-});
+async function generateValidOrderNumber() {
+  let orderNumber;
+  while (true) {
+    orderNumber = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
+    if (
+      orderNumber.length === 3 &&
+      orderNumber[0] &&
+      orderNumber[1] &&
+      orderNumber[2]
+    ) {
+      break;
+    }
+    console.log("Nieprawidłowa liczba, generuję ponownie...");
+    await delay(100);
+  }
+  return orderNumber;
+}
 
 async function sendOrderNumber(orderNumber, cornerNumber) {
   const command = `**SET_NO:${orderNumber}${cornerNumber}*`;
@@ -82,33 +98,24 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
   }
 }
 
+app.get("/ordernumber", (req, res) => {
+  const orderNumberStr = lastOrderNumber.toString().padStart(3, "0");
+  const reorderedOrderNumber =
+    orderNumberStr[1] + orderNumberStr[2] + orderNumberStr[0];
+
+  res.status(200).json({ ordernumber: reorderedOrderNumber });
+});
+
 app.post("/order", async (req, res) => {
-  const orderNumber = Math.floor(Math.random() * 1000).toString();
+  const orderNumber = await generateValidOrderNumber();
   const cornerNumber = orderNumber;
 
   await sendOrderNumber(orderNumber, cornerNumber);
-  if (
-    lastOrderNumber.toString()[0] === undefined ||
-    lastOrderNumber.toString()[0] === "undefined"
-  ) {
-    lastOrderNumber.toString()[0] = 0;
-  }
-  if (
-    lastOrderNumber.toString()[1] === undefined ||
-    lastOrderNumber.toString()[1] === "undefined"
-  ) {
-    lastOrderNumber.toString()[1] = 0;
-  }
-  if (
-    lastOrderNumber.toString()[2] === undefined ||
-    lastOrderNumber.toString()[2] === "undefined"
-  ) {
-    lastOrderNumber.toString()[2] = 0;
-  }
+
   const reorderedOrderNumber =
-    lastOrderNumber.toString()[1] +
-    lastOrderNumber.toString()[2] +
-    lastOrderNumber.toString()[0];
+    lastOrderNumber.toString().padStart(3, "0")[1] +
+    lastOrderNumber.toString().padStart(3, "0")[2] +
+    lastOrderNumber.toString().padStart(3, "0")[0];
 
   res.status(200).json({ orderNumber: reorderedOrderNumber });
 });

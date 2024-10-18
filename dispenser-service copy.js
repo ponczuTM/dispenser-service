@@ -1,5 +1,14 @@
+const express = require("express");
+const cors = require("cors");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
+
+const app = express();
+const PORT = 8000;
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const port = new SerialPort({
   path: "COM8",
@@ -10,6 +19,8 @@ const port = new SerialPort({
 });
 
 const parser = port.pipe(new ReadlineParser({ delimiter: ";" }));
+
+let lastOrderNumber = 0;
 
 function sendToDispenser(command) {
   return new Promise((resolve, reject) => {
@@ -35,7 +46,7 @@ function sendToDispenser(command) {
 async function checkConnection() {
   try {
     const response = await sendToDispenser("**CONN_ON*;");
-    if (response === "**CONN_ON*;01") {
+    if (response.includes("**CONN_ON*") && response.includes("01")) {
       console.log("Połączenie z Dispenserem udane.");
     } else {
       console.log("Błąd połączenia z Dispenserem.");
@@ -45,12 +56,24 @@ async function checkConnection() {
   }
 }
 
+app.get("/ordernumber", (req, res) => {
+  const orderNumberStr = lastOrderNumber.toString();
+  const reorderedOrderNumber =
+    orderNumberStr[1] + orderNumberStr[2] + orderNumberStr[0];
+
+  res.status(200).json({ ordernumber: reorderedOrderNumber });
+});
+
 async function sendOrderNumber(orderNumber, cornerNumber) {
-  const command = `**SET_NO:${orderNumber}${cornerNumber}*;`;
+  const command = `**SET_NO:${orderNumber}${cornerNumber}*`;
   try {
     const response = await sendToDispenser(command);
-    if (response === `${command}01`) {
+    if (
+      response.includes(`**SET_NO:${orderNumber}${cornerNumber}*`) &&
+      response.includes("01")
+    ) {
       console.log("Numer zamówienia wysłany i zaakceptowany.");
+      lastOrderNumber = orderNumber;
     } else {
       console.log("Błąd wysyłania numeru zamówienia.");
     }
@@ -59,13 +82,24 @@ async function sendOrderNumber(orderNumber, cornerNumber) {
   }
 }
 
-async function main() {
-  await checkConnection();
+app.post("/order", async (req, res) => {
+  const orderNumber = Math.floor(Math.random() * 1000).toString();
+  const cornerNumber = orderNumber;
 
-  await sendOrderNumber("1001", "02");
-}
+  await sendOrderNumber(orderNumber, cornerNumber);
+  
+  const reorderedOrderNumber =
+    lastOrderNumber.toString()[1] +
+    lastOrderNumber.toString()[2] +
+    lastOrderNumber.toString()[0];
 
-main();
+  res.status(200).json({ orderNumber: reorderedOrderNumber });
+});
+
+app.listen(PORT, () => {
+  console.log(`Serwer nasłuchuje na porcie ${PORT}`);
+  checkConnection();
+});
 
 port.on("error", function (err) {
   console.log("Błąd portu szeregowego: ", err.message);
